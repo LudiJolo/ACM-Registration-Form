@@ -1,59 +1,15 @@
-from datetime import date
-import os
-from utilities import writer
+import csv
 
 
-# takes the raw data from dictonary and turns them into list
-def get_data(request):
-    data = request.form.to_dict()
-    student_info = []
-    student_info.append(get_date_stamp())
-    for key in data.keys():
-        if (
-            key == "hear"
-            or key == "gain"
-            or key == "project-workshop"
-            or key == "availability"
-        ):
-            # request.form.getlist(key) gets multiple answers in an array
-            student_info.append(extract_string_from_list(request.form.getlist(key)))
-
-        else:
-            student_info.append(data[key])
-
-    return student_info
+def write_to_csv(data):
+    with open("database.csv", newline="", mode="a") as csv_database:
+        csv_writer = csv.writer(
+            csv_database, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
+        )
+        csv_writer.writerow(data)
 
 
-# takes list of strings and turns them into string
-# example: ['apple', 'banana'] = "apple banana"
-def extract_string_from_list(arr):
-    result = ""
-    count = 0
-    for word in arr:
-        # no space added for the first element
-        if count != 0:
-            result += " "
-
-        result += word
-        count += 1
-
-    return result
-
-
-# returns the current time
-def get_date_stamp():
-    return date.today()
-
-
-def retrieve_key():
-    file_path = os.path.expanduser("~/.bashrc")
-    variable_name = "secret_key"
-
-    with open(file_path, "r") as file:
-        for line in file:
-            if line.startswith("export") and variable_name in line:
-                value = line.split("=")[1].strip().strip('"')
-                return value
-
-        writer.write_txt("key not found")
-        raise NameError("key not found")
+# makes a log of any component failure
+def write_txt(data):
+    with open("/home/acmcsulaweb/ACM-Registration-Form/Log/log.txt", mode="a") as text_file:
+        text_file.write(data + "\n")
